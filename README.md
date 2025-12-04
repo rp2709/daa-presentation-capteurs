@@ -44,7 +44,7 @@ Mesure l'accélération sur les trois axes en **m/s²**. `TYPE_ACCELEROMETER` do
 Les valeurs relatives aux trois axes sont disponible au travers de l'objet sensorEvent.values[axe], avec axe égale à 0,1 ou 2 pour réspectivement x,y, ou z.  
 Avec le type non-calibré, on a accès à deux jeux de valeurs, sans et avec compensation du bias, respectivement (0,1,2) et (3,4,5).
 
-![axes](./images/device_acceleration_coordinates.png)
+![axes](images/device-acceleration-coordinates.png)
 [image_credit](https://google-developer-training.github.io/android-developer-advanced-course-concepts/unit-1-expand-the-user-experience/lesson-3-sensors/3-2-c-motion-and-position-sensors/3-2-c-motion-and-position-sensors.html)
 
 Le `TYPE_GRAVITY` mesure uniquement l'accélération due à la gravité, à nouveau dans les trois axes. On accède aux valeurs de manière analogue.
