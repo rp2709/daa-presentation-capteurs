@@ -33,6 +33,11 @@ On note que la méthode OnSensor**Changed**() est mal nommée, puisqu'elle sera 
 
 La classe SensorManager va bien au-delà de l'accès brute aux capteurs individuels. Elle expose une grande collection de méthodes combinant les données de un ou plusieurs capteurs pour donner un résultat directement utilisable. On a entre autre:
 - getRotationMatrix
+- getOrientation
+- getInclination
+- getAngleChange
+- getAltitude
+
 
 ## Les capteurs
 ### Capteurs de mouvement
@@ -55,9 +60,27 @@ Il est intéressant de noter que la plupart du temps, il n'y a qu'un seul capteu
 [](https://developer.android.com/reference/android/hardware/SensorEvent#values)
 [](https://developer.android.com/reference/android/hardware/Sensor#TYPE_ACCELEROMETER)
 
-### Gyroscope
-Ce capteur fournit des données sur la rotation de l'appareil, plus précisément sur sa vitesse angulaire en radiants par seconde, ou 1/s dans le SI.
+#### Gyroscope
+Ce capteur fournit des données sur la rotation de l'appareil, plus précisément sur sa vitesse angulaire en radiants par seconde, ou s⁻¹ dans le SI. Pour obtenir la rotation, on intègre la vitesse angulaire par rapport au temps. Considèrons le code suivant, grandment simplifié:
+```kotlin
+float previous_sample_timestamp = 0;
+float angle = 0; // angle in radiants
 
+public void onSensorChangeEvent(SensorEvent event){
+	if(previous_sample_timestamp == 0){
+		previous_sample_timestamp = event.timestamp;
+		return;
+	}
+
+	float angular_speed = event.values[0];
+	float delta_time = event.timestamp - previous_sample_timestamp;
+	angle += angular_speed * delta_time;
+	previous_sample_timestamp = event.timestamp; 
+}
+```
+
+Le code se complique pour trois dimensions, mais le principe d'intégration reste exactement le même.
+[](https://developer.android.com/reference/android/hardware/SensorEvent#values)
 [](https://developer.android.com/reference/android/hardware/Sensor#TYPE_GYROSCOPE)
 
 ### Capteurs d'environment
