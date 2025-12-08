@@ -56,9 +56,9 @@ Le `TYPE_GRAVITY` mesure uniquement l'accélération due à la gravité, à nouv
 
 Il est intéressant de noter que la plupart du temps, il n'y a qu'un seul capteur matériel, et que certains types de capteurs correspondent en fait à des capteurs logiciels ou conceptuels, comme un accéléromètre filtrant l'influence de la gravité ou un autre ne conservant que cette dernère.
 
-[](https://developer.android.com/develop/sensors-and-location/sensors/sensors_motion)
-[](https://developer.android.com/reference/android/hardware/SensorEvent#values)
-[](https://developer.android.com/reference/android/hardware/Sensor#TYPE_ACCELEROMETER)
+[capteurs de mouvements](https://developer.android.com/develop/sensors-and-location/sensors/sensors_motion)  
+[valeurs des evenements](https://developer.android.com/reference/android/hardware/SensorEvent#values)  
+[accelerometre](https://developer.android.com/reference/android/hardware/Sensor#TYPE_ACCELEROMETER)  
 
 #### Gyroscope
 Ce capteur fournit des données sur la rotation de l'appareil, plus précisément sur sa vitesse angulaire en radiants par seconde, ou s⁻¹ dans le SI. Pour obtenir la rotation, on intègre la vitesse angulaire par rapport au temps. Considèrons le code suivant, grandment simplifié:
@@ -79,9 +79,22 @@ public void onSensorChangeEvent(SensorEvent event){
 }
 ```
 
-Le code se complique pour trois dimensions, mais le principe d'intégration reste exactement le même.
-[](https://developer.android.com/reference/android/hardware/SensorEvent#values)
-[](https://developer.android.com/reference/android/hardware/Sensor#TYPE_GYROSCOPE)
+Le code se complique pour trois dimensions, mais le principe d'intégration reste exactement le même. 
+
+Utiliser `TYPE_ROTATION_VECTOR` pour obtenir les angles de rotations dans un system d'axes orthonormal avec Z en direction du ciel, Y en direction du nord magnetic de la terre et tangent au sol et X comme le produit vectoriel de Z et Y. Il est important de noter qu'il utilise aussi le capteur mesurant les champs magnétiques. Si on peut se passer de la stabilité du référentiel, on peut utiliser `TYPE_GAME_ROTATION_VECTOR`, similaire mais dont l'axe Y ne pointe pas forcément vers le nord magnétique.
+
+![](./images/axis_globe.png)
+
+[values of sensor events](https://developer.android.com/reference/android/hardware/SensorEvent#values)
+[gyroscope](https://developer.android.com/reference/android/hardware/Sensor#TYPE_GYROSCOPE)
+
+#### Divers et pratiques
+- STATIONARY_DETECT : values[0] = 1 ssi l'appareil n'a pas bougé pendant plus de 5 secondes  
+- MOTION_DETECT : values[0] = 1 ssi l'appareil est en mouvement depuis au moins 5 secondes
+- STEP_COUNTER : values[0] = nombre de pas depuis reboot
+- STEP_DETECTOR : values[0] = 1 ssi un pas à été détecté
+- HEART_BEAT : values[0] indique la confiance entre 0.0 et 1.0 qu'un battement de coeur à été détecté
+- HEADING : direction de l'appareil en degrés avec 0 Nord, 90 Est, 180 Sud...
 
 ### Capteurs d'environment
 Mesure divers propriétés de l'environnement physique dans lequel l'appareil évolue, comme la température, la pression, l'humidité, ou encore la luminosité.
