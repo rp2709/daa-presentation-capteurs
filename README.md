@@ -1,107 +1,290 @@
-# Capteurs Android
-## Introduction
-Les appareils androids portables possédent un assortiment de capteurs variés, dont la présence n'est pas garantie. 
-Nous allons tout d'abord comprendre la méthodologie d'accès au capteurs avant d'explorer les trois catégories principales de capteurs et détailler leur fonctionnement et plus particulièrement les données qu'ils génèrent. Enfin, nous exploreront quelques examples de code Kotlin intégrant ces fonctionalités.
+# Accès aux capteurs Android
 
-[Basé sur cette ressource](https://developer.android.com/develop/sensors-and-location/sensors/sensors_overview)
-## Méthodologie
-De part leur nature physique, les capteurs provoquent des événements, reçus et traités par un objet implémentant l'interface `SensorEventListener`. Cet objet doit être enregistré comme observateur d'événements pour un capteur au travers du `SensorManager` de la manière suivante
-```kotlin
-// Assume being in the context of an activity
-// Initialization happen in the create method of activity
-SensorManager manager = (SensorManager)getSystemService(SENSOR_SERVICE)
-Sensor sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELERATION_SENSOR);
-SensorEventListener myEventListener;
-int samplingPeriodUs = 10000; // => max frequency = 100Hz 
+## Accéléromètre, Gyroscope, Magnétomètre et autres
 
-// onResume
-manager.registerListener(myEventListener,sensor,10000)
+**Auteurs :** Sebastian Diaz, Raphaël Perret, Thomas Vuilleumier
+**Groupe :** B11
+**Cours :** DAA – Développement Android Avancé
+**Enseignant :** Fabien Dutoit
+**Assistant :** Elliot Ganty
+**Date :** Janvier 2026
 
-// onPause
-manager.unregisterListener(myEventListener)
+---
+
+## Table des matières
+
+1. Introduction
+2. Architecture et méthodologie d’accès
+3. Catégories de capteurs Android
+4. Choisir le bon capteur selon le besoin
+5. Capteurs de mouvement (étude approfondie)
+6. Capteurs de position
+7. Capteurs d’environnement
+8. Bonnes pratiques et optimisation
+9. Limitations et points d’attention
+10. Approches alternatives
+11. Périmètre du travail
+12. Conclusion
+
+---
+
+## 1. Introduction
+
+Les appareils Android modernes intègrent de nombreux capteurs physiques permettant aux applications d’interagir avec le monde réel. Ces capteurs transforment des phénomènes physiques (accélération, rotation, champ magnétique, lumière, pression, etc.) en données numériques exploitables par les applications.
+
+L’accès aux capteurs est une fonctionnalité avancée de l’écosystème Android, car elle implique des contraintes fortes en matière de performance, de consommation énergétique, de précision des données et de compatibilité matérielle.
+
+### Problématiques adressées
+
+L’utilisation des capteurs permet notamment de :
+
+* déterminer l’orientation et le mouvement d’un appareil,
+* enrichir l’expérience utilisateur dans les jeux et applications interactives,
+* suivre l’activité physique de l’utilisateur,
+* adapter dynamiquement l’interface ou le comportement d’une application,
+* implémenter des fonctionnalités sensibles au contexte.
+
+---
+
+## 2. Architecture et méthodologie d’accès
+
+L’accès aux capteurs Android repose sur une architecture événementielle fournie par le système.
+
+Une application ne lit jamais directement un capteur matériel. Elle communique avec le service système `SensorManager`, qui agit comme intermédiaire entre le matériel et l’application.
+
+Chaîne simplifiée :
 
 ```
+Application
+  ↓
+SensorEventListener
+  ↓
+SensorManager (service système)
+  ↓
+HAL (Hardware Abstraction Layer)
+  ↓
+Capteur physique
+```
 
-**Il est crucial de retirer son objet de la liste des observeurs pour éviter de drainer la batterie. Quitter l'activité ne suffit pas.**  
-Une période d'échantillonage plus petite va nous donner une meilleure approximation de la réalité mais requiert plus de temps sur le processeur et donc de batterie. Les applications sont par défault limitées à 200Hz (période de 5000Us), à moins de spécifier le contraire dans leur manifeste avec `Manifest.permission.HIGH_SAMPLING_RATE_SENSORS`.
+L’application s’enregistre comme observateur et reçoit des événements lorsque de nouvelles mesures sont disponibles.
 
-Une fois enregistré comme observateur, le `SensorEventListener` réagit aux évènements suivants:
-- onSensorChanged(SensorEvent event){...} : nouvel échantillon des données du capteur disponible au travers de `SensorEvent`
-- onAccuracyChanged(Sensor sensor, int accuracy){...} : la précision du capteur a changé
+Un point essentiel est la gestion du cycle de vie : un capteur ne doit être actif que lorsque l’application en a réellement besoin.
 
-On note que la méthode OnSensor**Changed**() est mal nommée, puisqu'elle sera appelée même si la valeur du capteur en elle même n'a pas changé. On considère le temps de la mesure comme ayant changé (duh).
+---
 
-La classe SensorManager va bien au-delà de l'accès brute aux capteurs individuels. Elle expose une grande collection de méthodes combinant les données de un ou plusieurs capteurs pour donner un résultat directement utilisable. On a entre autre:
-- getRotationMatrix
-- getOrientation
-- getInclination
-- getAngleChange
-- getAltitude
+## 3. Catégories de capteurs Android
 
+Android regroupe les capteurs en trois grandes catégories.
 
-## Les capteurs
 ### Capteurs de mouvement
-Mesure des accélération linéaires et de rotation de l'appareil en trois dimensions.
 
-#### Accélérometre
-Mesure l'accélération sur les trois axes en **m/s²**. `TYPE_ACCELEROMETER` donne accès à des données prenant en compte une calibration. `TYPE_ACCELEROMETER_UNCALIBRATED` nous donne accès aux valeurs brutes sans correction.
+Ils mesurent les accélérations et rotations sur les trois axes de l’espace.
 
-Les valeurs relatives aux trois axes sont disponible au travers de l'objet sensorEvent.values[axe], avec axe égale à 0,1 ou 2 pour réspectivement x,y, ou z.  
-Avec le type non-calibré, on a accès à deux jeux de valeurs, sans et avec compensation du bias, respectivement (0,1,2) et (3,4,5).
+Exemples : accéléromètre, gyroscope, capteur de gravité, vecteur de rotation.
 
-![axes](images/device-acceleration-coordinates.png)
-[image_credit](https://google-developer-training.github.io/android-developer-advanced-course-concepts/unit-1-expand-the-user-experience/lesson-3-sensors/3-2-c-motion-and-position-sensors/3-2-c-motion-and-position-sensors.html)
+### Capteurs de position
 
-Le `TYPE_GRAVITY` mesure uniquement l'accélération due à la gravité, à nouveau dans les trois axes. On accède aux valeurs de manière analogue.
+Ils permettent de déterminer l’orientation ou la position relative de l’appareil.
 
-Il est intéressant de noter que la plupart du temps, il n'y a qu'un seul capteur matériel, et que certains types de capteurs correspondent en fait à des capteurs logiciels ou conceptuels, comme un accéléromètre filtrant l'influence de la gravité ou un autre ne conservant que cette dernère.
+Exemples : magnétomètre, capteur de proximité.
 
-[capteurs de mouvements](https://developer.android.com/develop/sensors-and-location/sensors/sensors_motion)  
-[valeurs des evenements](https://developer.android.com/reference/android/hardware/SensorEvent#values)  
-[accelerometre](https://developer.android.com/reference/android/hardware/Sensor#TYPE_ACCELEROMETER)  
+### Capteurs d’environnement
 
-#### Gyroscope
-Ce capteur fournit des données sur la rotation de l'appareil, plus précisément sur sa vitesse angulaire en radiants par seconde, ou s⁻¹ dans le SI. Pour obtenir la rotation, on intègre la vitesse angulaire par rapport au temps. Considèrons le code suivant, grandment simplifié:
+Ils mesurent les caractéristiques de l’environnement physique.
+
+Exemples : luminosité, pression atmosphérique, température, humidité.
+
+---
+
+## 4. Choisir le bon capteur selon le besoin
+
+Un même objectif peut souvent être atteint avec plusieurs capteurs. Le choix du capteur dépend principalement de la précision attendue, de la consommation énergétique et de la disponibilité matérielle.
+
+| Objectif                    | Capteur recommandé       | Justification                                  |
+| --------------------------- | ------------------------ | ---------------------------------------------- |
+| Détecter une inclinaison    | Accéléromètre            | Simple, présent sur presque tous les appareils |
+| Orientation stable          | Vecteur de rotation      | Fusion de capteurs, pas de dérive              |
+| Jeux sans référence au nord | Game Rotation Vector     | Évite les interférences magnétiques            |
+| Détection de secousse       | Accélération linéaire    | Gravité exclue                                 |
+| Compteur de pas             | Step Counter             | Très faible consommation                       |
+| Reconnaissance d’activité   | Activity Recognition API | Algorithmes optimisés côté système             |
+
+Cette étape de sélection est cruciale pour éviter une implémentation inutilement complexe ou énergivore.
+
+---
+
+## 5. Capteurs de mouvement – étude approfondie
+
+### Accéléromètre
+
+L’accéléromètre mesure l’accélération appliquée à l’appareil sur les axes X, Y et Z, en incluant la gravité terrestre.
+
+![Système de coordonnées de l’accéléromètre](images/device-acceleration-coordinates.png)
+
+Exemple d’accès à l’accéléromètre :
+
 ```kotlin
-float previous_sample_timestamp = 0;
-float angle = 0; // angle in radiants
+val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
-public void onSensorChangeEvent(SensorEvent event){
-	if(previous_sample_timestamp == 0){
-		previous_sample_timestamp = event.timestamp;
-		return;
-	}
+sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
+```
 
-	float angular_speed = event.values[0];
-	float delta_time = event.timestamp - previous_sample_timestamp;
-	angle += angular_speed * delta_time;
-	previous_sample_timestamp = event.timestamp; 
+Dans `onSensorChanged`, les valeurs correspondent aux axes X, Y et Z :
+
+```kotlin
+override fun onSensorChanged(event: SensorEvent) {
+    val x = event.values[0]
+    val y = event.values[1]
+    val z = event.values[2]
 }
 ```
 
-Le code se complique pour trois dimensions, mais le principe d'intégration reste exactement le même. 
+L’accéléromètre est couramment utilisé pour détecter des secousses, mesurer une inclinaison ou servir de base à la fusion de capteurs.
 
-Utiliser `TYPE_ROTATION_VECTOR` pour obtenir les angles de rotations dans un system d'axes orthonormal avec Z en direction du ciel, Y en direction du nord magnetic de la terre et tangent au sol et X comme le produit vectoriel de Z et Y. Il est important de noter qu'il utilise aussi le capteur mesurant les champs magnétiques. Si on peut se passer de la stabilité du référentiel, on peut utiliser `TYPE_GAME_ROTATION_VECTOR`, similaire mais dont l'axe Y ne pointe pas forcément vers le nord magnétique.
+---
 
-![](./images/axis_globe.png)
+### Gyroscope
 
-[values of sensor events](https://developer.android.com/reference/android/hardware/SensorEvent#values)
-[gyroscope](https://developer.android.com/reference/android/hardware/Sensor#TYPE_GYROSCOPE)
+Le gyroscope mesure la vitesse angulaire autour des trois axes (en rad/s). Il est très précis pour détecter les rotations rapides.
 
-#### Divers et pratiques
-- STATIONARY_DETECT : values[0] = 1 ssi l'appareil n'a pas bougé pendant plus de 5 secondes  
-- MOTION_DETECT : values[0] = 1 ssi l'appareil est en mouvement depuis au moins 5 secondes
-- STEP_COUNTER : values[0] = nombre de pas depuis reboot
-- STEP_DETECTOR : values[0] = 1 ssi un pas à été détecté
-- HEART_BEAT : values[0] indique la confiance entre 0.0 et 1.0 qu'un battement de coeur à été détecté
-- HEADING : direction de l'appareil en degrés avec 0 Nord, 90 Est, 180 Sud...
+```kotlin
+val gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_GAME)
+```
 
-### Capteurs d'environment
-Mesure divers propriétés de l'environnement physique dans lequel l'appareil évolue, comme la température, la pression, l'humidité, ou encore la luminosité.
+Pour obtenir un angle de rotation, la vitesse angulaire doit être intégrée dans le temps, ce qui entraîne une dérive progressive (drift).
 
-### Capteurs de position
-Mesure de la position et de 'orientation géographique de l'appareil.
+---
 
-## Exemples
+### Capteurs de rotation (fusion)
 
-## Remarques
+Android fournit des capteurs virtuels basés sur la fusion de plusieurs capteurs physiques.
+
+```kotlin
+val rotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+```
+
+Ces capteurs offrent une orientation stable et sont recommandés dans la majorité des cas.
+
+---
+
+## 6. Capteurs de position
+
+### Magnétomètre
+
+Le magnétomètre mesure le champ magnétique ambiant. Il est principalement utilisé pour déterminer la direction du nord magnétique.
+
+Il est très sensible aux interférences (objets métalliques, champs électriques), ce qui nécessite souvent une calibration.
+
+### Capteur de proximité
+
+Le capteur de proximité détecte la présence d’un objet proche de l’appareil. Il est couramment utilisé pour éteindre l’écran lors des appels téléphoniques.
+
+---
+
+## 7. Capteurs d’environnement
+
+Les capteurs d’environnement fournissent des informations sur le contexte physique.
+
+Exemples d’utilisation :
+
+* adaptation automatique de la luminosité de l’écran,
+* estimation de l’altitude à partir de la pression atmosphérique,
+* applications météo ou domotiques.
+
+Tous les appareils ne disposent pas de ces capteurs.
+
+---
+
+## 8. Bonnes pratiques et optimisation
+
+L’utilisation des capteurs doit toujours être raisonnée.
+
+Principes essentiels :
+
+* enregistrer les capteurs uniquement lorsque nécessaire,
+* adapter la fréquence d’échantillonnage au besoin réel,
+* filtrer les données bruitées,
+* privilégier les capteurs de haut niveau lorsque possible,
+* tester sur des appareils réels.
+
+Les capteurs figurent parmi les composants les plus consommateurs d’énergie sur un appareil mobile.
+
+---
+
+## 9. Limitations et points d’attention
+
+### Fragmentation matérielle
+
+Tous les appareils Android ne disposent pas des mêmes capteurs. Une application doit prévoir des mécanismes de dégradation progressive.
+
+### Bruit et précision
+
+Les mesures issues des capteurs sont imparfaites : bruit, biais, dérive et latence sont des phénomènes courants.
+
+### Erreurs fréquentes
+
+* utiliser une fréquence maximale sans justification,
+* oublier de désenregistrer les listeners,
+* confondre inclinaison et accélération,
+* intégrer un gyroscope sans correction,
+* se limiter aux tests sur émulateur.
+
+---
+
+## 10. Approches alternatives
+
+### Activity Recognition API
+
+Google fournit une API de reconnaissance d’activité de haut niveau.
+
+```kotlin
+val client = ActivityRecognition.getClient(context)
+client.requestActivityUpdates(10_000, pendingIntent)
+```
+
+Cette approche permet d’identifier des activités telles que la marche, la course ou l’immobilité avec une consommation énergétique optimisée.
+
+### Ressources utiles
+
+* [https://developer.android.com/develop/sensors-and-location/sensors/sensors_overview](https://developer.android.com/develop/sensors-and-location/sensors/sensors_overview)
+* [https://developer.android.com/guide/topics/sensors/sensors_motion](https://developer.android.com/guide/topics/sensors/sensors_motion)
+* [https://developer.android.com/guide/topics/sensors/sensors_position](https://developer.android.com/guide/topics/sensors/sensors_position)
+* [https://developer.android.com/guide/topics/sensors/sensors_environment](https://developer.android.com/guide/topics/sensors/sensors_environment)
+
+---
+
+## 11. Périmètre du travail
+
+Ce document couvre :
+
+* l’accès aux capteurs via l’API Android SensorManager,
+* les principaux capteurs de mouvement, position et environnement,
+* les bonnes pratiques, limitations et alternatives.
+
+Ne sont pas traités en détail :
+
+* les filtres avancés (Kalman, SLAM),
+* la réalité augmentée via ARCore,
+* les algorithmes temps réel complexes en NDK.
+
+---
+
+## 12. Conclusion
+
+L’accès aux capteurs Android permet de créer des applications riches, contextuelles et interactives. Cette puissance implique toutefois une gestion rigoureuse du cycle de vie, de la consommation énergétique et de la qualité des données.
+
+Une bonne compréhension des capteurs, de leurs limites et des alternatives disponibles est indispensable pour concevoir des applications robustes et performantes.
+
+---
+
+## Annexe – Utilisation d’IA générative
+
+Dans le cadre de ce travail, des outils d’IA générative ont été utilisés pour :
+
+* reformuler certaines explications techniques,
+* vérifier la cohérence de la structure,
+* proposer des exemples pédagogiques.
+
+L’ensemble du contenu technique repose sur l’étude de la documentation officielle Android et sur des connaissances acquises durant le cours.
