@@ -13,20 +13,22 @@
 
 ## Table des matières
 
-1. Introduction
-2. Architecture et méthodologie d’accès
-3. Catégories de capteurs Android
-4. Choisir le bon capteur selon le besoin
-5. Capteurs de mouvement (étude approfondie)
-6. Capteurs de position
-7. Capteurs d’environnement
-8. Bonnes pratiques et optimisation
-9. Limitations et points d’attention
-10. Approches alternatives
-11. Périmètre du travail
-12. Conclusion
+1. [Introduction](#1-introduction)
+2. [Architecture et méthodologie d’accès](#2-architecture-et-méthodologie-daccès)
+3. [Catégories de capteurs Android](#3-catégories-de-capteurs-android)
+4. [Choisir le bon capteur selon le besoin](#4-choisir-le-bon-capteur-selon-le-besoin)
+5. [Capteurs de mouvement (étude approfondie)](#5-capteurs-de-mouvement-étude-approfondie)
+6. [Capteurs de position](#6-capteurs-de-position)
+7. [Capteurs d’environnement](#7-capteurs-denvironnement)
+8. [Bonnes pratiques et optimisation](#8-bonnes-pratiques-et-optimisation)
+9. [Limitations et points d’attention](#9-limitations-et-points-dattention)
+10. [Approches alternatives](#10-approches-alternatives)
+11. [Périmètre du travail](#11-périmètre-du-travail)
+12. [Conclusion](#12-conclusion)
 
 ---
+
+<div class="page"/>
 
 ## 1. Introduction
 
@@ -72,6 +74,8 @@ Un point essentiel est la gestion du cycle de vie : un capteur ne doit être act
 
 ---
 
+<div class="page"/>
+
 ## 3. Catégories de capteurs Android
 
 Android regroupe les capteurs en trois grandes catégories.
@@ -113,11 +117,13 @@ Cette étape de sélection est cruciale pour éviter une implémentation inutile
 
 ---
 
+<div class="page"/>
+
 ## 5. Capteurs de mouvement – étude approfondie
 
 ### Accéléromètre
 
-L’accéléromètre mesure l’accélération appliquée à l’appareil sur les axes X, Y et Z, en incluant la gravité terrestre.
+L’accéléromètre mesure l’accélération appliquée à l’appareil sur les axes X, Y et Z, en incluant la gravité.
 
 ![Système de coordonnées de l’accéléromètre](images/device-acceleration-coordinates.png)
 
@@ -142,7 +148,17 @@ override fun onSensorChanged(event: SensorEvent) {
 
 L’accéléromètre est couramment utilisé pour détecter des secousses, mesurer une inclinaison ou servir de base à la fusion de capteurs.
 
----
+### Capteurs de rotation (fusion)
+
+Android fournit des capteurs virtuels basés sur la fusion de plusieurs capteurs physiques.
+
+```kotlin
+val rotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+```
+
+Ces capteurs offrent une orientation stable et sont recommandés dans la majorité des cas.
+
+<div class="page"/>
 
 ### Gyroscope
 
@@ -154,18 +170,6 @@ sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_GAME)
 ```
 
 Pour obtenir un angle de rotation, la vitesse angulaire doit être intégrée dans le temps, ce qui entraîne une dérive progressive (drift).
-
----
-
-### Capteurs de rotation (fusion)
-
-Android fournit des capteurs virtuels basés sur la fusion de plusieurs capteurs physiques.
-
-```kotlin
-val rotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
-```
-
-Ces capteurs offrent une orientation stable et sont recommandés dans la majorité des cas.
 
 ---
 
@@ -196,6 +200,8 @@ Exemples d’utilisation :
 Tous les appareils ne disposent pas de ces capteurs.
 
 ---
+
+<div class="page"/>
 
 ## 8. Bonnes pratiques et optimisation
 
@@ -245,6 +251,8 @@ client.requestActivityUpdates(10_000, pendingIntent)
 ```
 
 Cette approche permet d’identifier des activités telles que la marche, la course ou l’immobilité avec une consommation énergétique optimisée.
+
+<div class="page"/>
 
 ### Ressources utiles
 
