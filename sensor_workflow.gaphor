@@ -36,7 +36,7 @@
 <ref refid="d4807f5a-f49f-11f0-b886-55f6f85da61a"/>
 <ref refid="d7e19bfb-f49f-11f0-9904-55f6f85da61a"/>
 <ref refid="ea7d092a-f49f-11f0-a4cd-55f6f85da61a"/>
-<ref refid="f61e1543-f49f-11f0-a86f-55f6f85da61a"/>
+<ref refid="bf51a708-f575-11f0-b5d9-701ab860c2ea"/>
 <ref refid="95a58bde-f49f-11f0-ac65-55f6f85da61a"/>
 <ref refid="9b5b846f-f49f-11f0-8430-55f6f85da61a"/>
 <ref refid="9df9e1ab-f49f-11f0-9235-55f6f85da61a"/>
@@ -426,7 +426,6 @@
 <presentation>
 <reflist>
 <ref refid="ea7d092a-f49f-11f0-a4cd-55f6f85da61a"/>
-<ref refid="f61e1543-f49f-11f0-a86f-55f6f85da61a"/>
 </reflist>
 </presentation>
 </UML:Comment>
@@ -450,9 +449,19 @@
 <ref refid="ea7d047f-f49f-11f0-a2a6-55f6f85da61a"/>
 </subject>
 </UML:CommentItem>
-<UML:CommentItem id="f61e1543-f49f-11f0-a86f-55f6f85da61a">
+<UML:Comment id="bf51a0af-f575-11f0-9f15-701ab860c2ea">
+<body>
+<val>Your device</val>
+</body>
+<presentation>
+<reflist>
+<ref refid="bf51a708-f575-11f0-b5d9-701ab860c2ea"/>
+</reflist>
+</presentation>
+</UML:Comment>
+<UML:CommentItem id="bf51a708-f575-11f0-b5d9-701ab860c2ea">
 <matrix>
-<val>(1.0, 0.0, 0.0, 1.0, 46.05948977702667, 160.77364065056778)</val>
+<val>(1.0, 0.0, 0.0, 1.0, 37.16032086533211, 161.0)</val>
 </matrix>
 <top-left>
 <val>(0.0, 0.0)</val>
@@ -467,7 +476,7 @@
 <ref refid="9464c491-f49e-11f0-8ddd-55f6f85da61a"/>
 </diagram>
 <subject>
-<ref refid="ea7d047f-f49f-11f0-a2a6-55f6f85da61a"/>
+<ref refid="bf51a0af-f575-11f0-9f15-701ab860c2ea"/>
 </subject>
 </UML:CommentItem>
 </model>

@@ -63,7 +63,9 @@ _paginate: false
 SensorManager manager = (SensorManager)getSystemService(SENSOR_SERVICE)
 Sensor sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELERATION_SENSOR);
 SensorEventListener myEventListener;
-int samplingPeriodUs = 10000; // => max frequency = 100Hz 
+
+// => max frequency = 100Hz
+int samplingPeriodUs = 10000; // microseconds
 
 // onResume
 manager.registerListener(myEventListener,sensor,samplingPeriodUs)
@@ -80,6 +82,8 @@ public void onSensorChangeEvent(SensorEvent event){
     // ...
 }
 ```
+
+`onSensorChangeEvent` est implémentée dans l’interface `SensorEventListener`.
 
 ## 2. Catégories de capteurs Android
 
@@ -103,22 +107,24 @@ La gravité est aussi mesurée et doit être filtrée.
 ![Système de coordonnées de l’accéléromètre bg right:48%](images/device-acceleration-coordinates.png)
 
 ### Exemple d’utilisation à l’accéléromètre :
+
 ```kotlin
 public void onSensorChangeEvent(SensorEvent event){
     // ...
     // filtre
 	final float alpha = 0.8;
-	xgravity = alpha * xgravity + (1 - alpha) * event.values[0];
+	ygravity = alpha * ygravity + (1 - alpha) * event.values[1];
 	
 	// intégration
 	val delta_time = event.timestamp - previous_sample_timestamp;
-	xvelocity += delta_time * (event.values[0] - xgravity);
+	yvelocity += delta_time * (event.values[1] - ygravity);
 	//... 
 }
 ```
 
 
 ### Gyroscope
+
 - Vitesse angulaire en rad/s
 - Vitesse angulaire intègrée dans le temps
 - Imprécision cumulée (drift)
@@ -133,11 +139,11 @@ sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_GAME)
 - Capteur virtuel
 - Combinaison de capteurs
 - Données filtrées
-- Pas besoin d'intègrer
+- Pas besoin d'intégrer (donc pas de drift)
 - A utiliser en priorité
 
 ```kotlin
-val rotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+val rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
 ```
 
 ## 4. Capteurs de position
@@ -161,9 +167,10 @@ val rotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
 ## 6. Bonnes pratiques et optimisation
 
 **La fréquence d'échantillonage impacte la consomation**
+
 - Garder une fréquence basse
-- Arrêter de recevoir les événements
-- Pas lié au cycle de vie des activités
+- Penser à désenregistrer les observateurs
+- Lier au cycle de vie de l’activité
 
 ## 7. Approche alternative
 
@@ -186,5 +193,3 @@ Cette approche permet d’identifier des activités telles que la marche, la cou
 - [https://developer.android.com/guide/topics/sensors/sensors_motion](https://developer.android.com/guide/topics/sensors/sensors_motion)
 - [https://developer.android.com/guide/topics/sensors/sensors_position](https://developer.android.com/guide/topics/sensors/sensors_position)
 - [https://developer.android.com/guide/topics/sensors/sensors_environment](https://developer.android.com/guide/topics/sensors/sensors_environment)
-
-
