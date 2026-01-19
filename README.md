@@ -55,7 +55,7 @@ _paginate: false
 
 ## 1. Architecture et méthodologie d’accès
 
-![fig1](./images/workflow.png)
+![bg right contain](./images/workflow.png)
 
 ### Enregistrer un observateur
 
@@ -96,6 +96,7 @@ public void onSensorChangeEvent(SensorEvent event){
 - Environnement
 
 ## 3. Capteurs de mouvement – étude approfondie
+
 ![bg right](./images/movement.webp)
 
 ### Accéléromètre
@@ -104,7 +105,7 @@ Mesure l'accélération en m/s² sur les axes X,Y et Z.
 
 La gravité est aussi mesurée et doit être filtrée.
 
-![Système de coordonnées de l’accéléromètre bg right:48%](images/device-acceleration-coordinates.png)
+![Système de coordonnées de l’accéléromètre bg right contain](images/device-acceleration-coordinates.png)
 
 ### Exemple d’utilisation à l’accéléromètre :
 
