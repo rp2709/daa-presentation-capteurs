@@ -22,7 +22,7 @@
 7. [Capteurs d’environnement](#7-capteurs-denvironnement)
 8. [Bonnes pratiques et optimisation](#8-bonnes-pratiques-et-optimisation)
 9. [Limitations et points d’attention](#9-limitations-et-points-dattention)
-10. []()
+10. [Manifest et permissions](#10-manifest-et-permissions)
 11. [Approches alternatives](#11-approches-alternatives)
 12. [Périmètre du travail](#12-périmètre-du-travail)
 13. [Conclusion](#13-conclusion)
