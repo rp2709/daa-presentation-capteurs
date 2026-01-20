@@ -167,11 +167,15 @@ val rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_V
 
 ## 6. Bonnes pratiques et optimisation
 
-**La fréquence d'échantillonage impacte la consomation**
-
-- Garder une fréquence basse
+- Garder une fréquence d'échantillonnage basse si possible
 - Penser à désenregistrer les observateurs
 - Lier au cycle de vie de l’activité
+- Ajouter au manifest si capteur obligatoire
+
+```xml
+<uses-feature android:name="android.hardware.sensor.accelerometer"
+               android:required="true"/>
+```
 
 ## 7. Approche alternative
 
