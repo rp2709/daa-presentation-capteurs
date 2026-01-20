@@ -22,9 +22,10 @@
 7. [Capteurs d’environnement](#7-capteurs-denvironnement)
 8. [Bonnes pratiques et optimisation](#8-bonnes-pratiques-et-optimisation)
 9. [Limitations et points d’attention](#9-limitations-et-points-dattention)
-10. [Approches alternatives](#10-approches-alternatives)
-11. [Périmètre du travail](#11-périmètre-du-travail)
-12. [Conclusion](#12-conclusion)
+10. []()
+11. [Approches alternatives](#11-approches-alternatives)
+12. [Périmètre du travail](#12-périmètre-du-travail)
+13. [Conclusion](#13-conclusion)
 
 ---
 
@@ -239,7 +240,21 @@ Les mesures issues des capteurs sont imparfaites : bruit, biais, dérive et late
 
 ---
 
-## 10. Approches alternatives
+## 10. Manifest et permissions
+
+L’accès aux capteurs ne nécessite pas de permissions spéciales dans le manifeste Android. Mais si l'application en a besoin pour fonctionner correctement, il est important de vérifier la disponibilité des capteurs au moment du téléchargement.
+
+```xml
+<uses-feature
+    android:name="android.hardware.sensor.gyroscope"
+    android:required="true" />
+```
+
+---
+
+<div class="page"/>
+
+## 11. Approches alternatives
 
 ### Activity Recognition API
 
@@ -252,8 +267,6 @@ client.requestActivityUpdates(10_000, pendingIntent)
 
 Cette approche permet d’identifier des activités telles que la marche, la course ou l’immobilité avec une consommation énergétique optimisée.
 
-<div class="page"/>
-
 ### Ressources utiles
 
 * [https://developer.android.com/develop/sensors-and-location/sensors/sensors_overview](https://developer.android.com/develop/sensors-and-location/sensors/sensors_overview)
@@ -263,7 +276,7 @@ Cette approche permet d’identifier des activités telles que la marche, la cou
 
 ---
 
-## 11. Périmètre du travail
+## 12. Périmètre du travail
 
 Ce document couvre :
 
@@ -279,13 +292,15 @@ Ne sont pas traités en détail :
 
 ---
 
-## 12. Conclusion
+## 13. Conclusion
 
 L’accès aux capteurs Android permet de créer des applications riches, contextuelles et interactives. Cette puissance implique toutefois une gestion rigoureuse du cycle de vie, de la consommation énergétique et de la qualité des données.
 
 Une bonne compréhension des capteurs, de leurs limites et des alternatives disponibles est indispensable pour concevoir des applications robustes et performantes.
 
 ---
+
+<div class="page"/>
 
 ## Annexe – Utilisation d’IA générative
 
